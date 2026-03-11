@@ -71,10 +71,12 @@ modprobe -r g_multi 2>/dev/null
 modprobe -r g_hid 2>/dev/null
 
 modprobe libcomposite || echo "Error: libcomposite module failed to load."
-modprobe usb_f_hid || echo "Error: usb_f_hid module failed to load. HID may not work."
-modprobe usb_f_msc || echo "Error: usb_f_msc module failed to load. STORAGE may not work."
-modprobe usb_f_acm || echo "Error: usb_f_acm module failed to load. SERIAL may not work."
-modprobe usb_f_ecm || echo "Error: usb_f_ecm module failed to load. ETHERNET may not work."
+# Try loading function modules - some might be built-in or have different names
+modprobe usb_f_hid 2>/dev/null
+modprobe usb_f_mass_storage 2>/dev/null
+modprobe usb_f_acm 2>/dev/null
+modprobe usb_f_ecm 2>/dev/null
+modprobe usb_f_rndis 2>/dev/null
 
 DEV_DIR=g1
 DEV_INT=1
@@ -147,12 +149,12 @@ fi
 
 if [ "$AM_HID" == "yes" ]
 then
-    mkdir -p functions/hid.$N
-    echo 1 > functions/hid.$N/protocol
-    echo 1 > functions/hid.$N/subclass
-    echo 8 > functions/hid.$N/report_length
-    echo -ne \\x05\\x01\\x09\\x06\\xa1\\x01\\x05\\x07\\x19\\xe0\\x29\\xe7\\x15\\x00\\x25\\x01\\x75\\x01\\x95\\x08\\x81\\x02\\x95\\x01\\x75\\x08\\x81\\x03\\x95\\x05\\x75\\x01\\x05\\x08\\x19\\x01\\x29\\x05\\x91\\x02\\x95\\x01\\x75\\x03\\x91\\x03\\x95\\x06\\x75\\x08\\x15\\x00\\x25\\x65\\x05\\x07\\x19\\x00\\x29\\x65\\x81\\x00\\xc0 > functions/hid.$N/report_desc
-    ln -s functions/hid.$N configs/c.$C/
+    mkdir -p functions/hid.0
+    echo 1 > functions/hid.0/protocol
+    echo 1 > functions/hid.0/subclass
+    echo 8 > functions/hid.0/report_length
+    echo -ne \\x05\\x01\\x09\\x06\\xa1\\x01\\x05\\x07\\x19\\xe0\\x29\\xe7\\x15\\x00\\x25\\x01\\x75\\x01\\x95\\x08\\x81\\x02\\x95\\x01\\x75\\x08\\x81\\x03\\x95\\x05\\x75\\x01\\x05\\x08\\x19\\x01\\x29\\x05\\x91\\x02\\x95\\x01\\x75\\x03\\x91\\x03\\x95\\x06\\x75\\x08\\x15\\x00\\x25\\x65\\x05\\x07\\x19\\x00\\x29\\x65\\x81\\x00\\xc0 > functions/hid.0/report_desc
+    ln -s functions/hid.0 configs/c.$C/
 fi
 
 
