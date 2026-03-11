@@ -4,6 +4,12 @@ export AM_ETHERNET=no
 export AM_STORAGE=no
 export AM_HID=no
 FLASHDRIVE_FILE=/bunny/storage/system.img
+if [ -z "$1" ]; then
+    echo "Usage: ATTACKMODE [MODE1] [MODE2] ..."
+    echo "Modes: SERIAL, ECM_ETHERNET, RNDIS_ETHERNET, STORAGE, HID, STOR_RNDIS, STOP"
+    exit 0
+fi
+
 for AM in $@;
 do
 	case $AM in
@@ -28,6 +34,18 @@ do
 		STOR_RNDIS*)
 			/bunny/bin/storage_rndis
 			exit 0
+		;;
+		STOP*)
+			for OLDDEV in `ls /sys/kernel/config/usb_gadget/`
+			do
+				echo "" > /sys/kernel/config/usb_gadget/$OLDDEV/UDC 2>/dev/null
+				rm -rf /sys/kernel/config/usb_gadget/$OLDDEV
+			done
+			echo "USB Gadget stopped."
+			exit 0
+		;;
+		*)
+			echo "Unknown mode: $AM"
 		;;
 		esac
 	done
@@ -145,6 +163,13 @@ then
         echo "usb0 not present yet; skipping DHCP start."
     fi
 fi
+
+echo "ATTACKMODE configuration applied:"
+echo "  SERIAL:   $AM_SERIAL"
+echo "  ETHERNET: $AM_ETHERNET"
+echo "  STORAGE:  $AM_STORAGE"
+echo "  HID:      $AM_HID"
+echo "  IMAGE:    $FLASHDRIVE_FILE"
 
 
  
