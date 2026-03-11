@@ -70,13 +70,12 @@ modprobe -r g_ether 2>/dev/null
 modprobe -r g_multi 2>/dev/null
 modprobe -r g_hid 2>/dev/null
 
-modprobe libcomposite || echo "Error: libcomposite module failed to load."
-# Try loading function modules - some might be built-in or have different names
-modprobe usb_f_hid 2>/dev/null
-modprobe usb_f_mass_storage 2>/dev/null
-modprobe usb_f_acm 2>/dev/null
-modprobe usb_f_ecm 2>/dev/null
-modprobe usb_f_rndis 2>/dev/null
+modprobe libcomposite 2>/dev/null || echo "Error: libcomposite failed."
+
+# Try common names for gadget functions
+for mod in usb_f_hid f_hid usb_f_mass_storage usb_f_msc usb_f_acm usb_f_ecm usb_f_rndis; do
+    modprobe $mod 2>/dev/null
+done
 
 DEV_DIR=g1
 DEV_INT=1
