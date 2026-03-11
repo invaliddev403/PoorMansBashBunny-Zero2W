@@ -64,12 +64,17 @@ MANUFACTURER="TimHolum"
 PRODUCT="Pi Zero Bunny"
 
 
-# Ensure required modules are loaded
-modprobe libcomposite 2>/dev/null
-modprobe usb_f_hid 2>/dev/null
-modprobe usb_f_msc 2>/dev/null
-modprobe usb_f_acm 2>/dev/null
-modprobe usb_f_ecm 2>/dev/null
+# Ensure required modules are loaded and legacy gadgets are out of the way
+echo "Preparing USB Gadget modules..."
+modprobe -r g_ether 2>/dev/null
+modprobe -r g_multi 2>/dev/null
+modprobe -r g_hid 2>/dev/null
+
+modprobe libcomposite || echo "Error: libcomposite module failed to load."
+modprobe usb_f_hid || echo "Error: usb_f_hid module failed to load. HID may not work."
+modprobe usb_f_msc || echo "Error: usb_f_msc module failed to load. STORAGE may not work."
+modprobe usb_f_acm || echo "Error: usb_f_acm module failed to load. SERIAL may not work."
+modprobe usb_f_ecm || echo "Error: usb_f_ecm module failed to load. ETHERNET may not work."
 
 DEV_DIR=g1
 DEV_INT=1
