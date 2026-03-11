@@ -1,5 +1,5 @@
 [Service]
-ExecStart=/usr/bin/python /bunny/bin/bunny-launcher.py
+ExecStart=/usr/bin/python3 /bunny/bin/bunny-launcher.py
 Restart=always
 StandardOutput=syslog
 StandardError=syslog

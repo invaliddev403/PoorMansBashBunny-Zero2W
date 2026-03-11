@@ -83,7 +83,7 @@ ln -s configs/c.1 os_desc
 # bDeviceClass 0x02
 # bDeviceSubClass 0x02
 
-echo "20980000.usb" > UDC
+ls /sys/class/udc > UDC
 
 # Give it time to install
 
@@ -108,7 +108,7 @@ echo "0x00" > bDeviceClass
 
 # Re-attach the gadget
 
-echo "20980000.usb" > UDC
+ls /sys/class/udc > UDC
 
 # BOOM!
 
