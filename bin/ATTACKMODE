@@ -157,14 +157,28 @@ then
     ln -s functions/ecm.$N configs/c.$C/
 fi
 
+# Probing for correct HID function name
+HID_FUNC="hid"
+if [ "$AM_HID" == "yes" ]; then
+    echo "Probing for HID function name..."
+    for f in hid hidg; do
+        if mkdir -p functions/$f.probe 2>/dev/null; then
+            HID_FUNC=$f
+            rmdir functions/$f.probe
+            echo "  - Found working HID function: $HID_FUNC"
+            break
+        fi
+    done
+fi
+
 if [ "$AM_HID" == "yes" ]
 then
-    mkdir -p functions/hid.0
-    echo 1 > functions/hid.0/protocol
-    echo 1 > functions/hid.0/subclass
-    echo 8 > functions/hid.0/report_length
-    echo -ne \\x05\\x01\\x09\\x06\\xa1\\x01\\x05\\x07\\x19\\xe0\\x29\\xe7\\x15\\x00\\x25\\x01\\x75\\x01\\x95\\x08\\x81\\x02\\x95\\x01\\x75\\x08\\x81\\x03\\x95\\x05\\x75\\x01\\x05\\x08\\x19\\x01\\x29\\x05\\x91\\x02\\x95\\x01\\x75\\x03\\x91\\x03\\x95\\x06\\x75\\x08\\x15\\x00\\x25\\x65\\x05\\x07\\x19\\x00\\x29\\x65\\x81\\x00\\xc0 > functions/hid.0/report_desc
-    ln -s functions/hid.0 configs/c.$C/
+    mkdir -p functions/$HID_FUNC.0
+    echo 1 > functions/$HID_FUNC.0/protocol
+    echo 1 > functions/$HID_FUNC.0/subclass
+    echo 8 > functions/$HID_FUNC.0/report_length
+    echo -ne \\x05\\x01\\x09\\x06\\xa1\\x01\\x05\\x07\\x19\\xe0\\x29\\xe7\\x15\\x00\\x25\\x01\\x75\\x01\\x95\\x08\\x81\\x02\\x95\\x01\\x75\\x08\\x81\\x03\\x95\\x05\\x75\\x01\\x05\\x08\\x19\\x01\\x29\\x05\\x91\\x02\\x95\\x01\\x75\\x03\\x91\\x03\\x95\\x06\\x75\\x08\\x15\\x00\\x25\\x65\\x05\\x07\\x19\\x00\\x29\\x65\\x81\\x00\\xc0 > functions/$HID_FUNC.0/report_desc
+    ln -s functions/$HID_FUNC.0 configs/c.$C/
 fi
 
 
