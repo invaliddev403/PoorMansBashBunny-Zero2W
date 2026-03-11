@@ -112,6 +112,10 @@ ls /sys/class/udc > UDC
 
 # BOOM!
 
-#ifconfig usb0 up 192.168.222.1/24
-ifconfig usb0 up 172.16.64.1/24
-systemctl start isc-dhcp-server 
+if ip link show usb0 >/dev/null 2>&1; then
+    ip addr add 172.16.64.1/24 dev usb0 2>/dev/null || true
+    ip link set usb0 up
+    systemctl restart isc-dhcp-server || true
+else
+    echo "usb0 not present yet; skipping DHCP start."
+fi

@@ -92,7 +92,9 @@ mkdir -p configs/c.$C/strings/0x409
 if [ "$AM_STORAGE" == "yes" ]
 then
 	mkdir -p ${FLASHDRIVE_FILE/img/d}
-	mount -o loop,ro -t vfat $FLASHDRIVE_FILE ${FLASHDRIVE_FILE/img/d}
+	if ! mountpoint -q ${FLASHDRIVE_FILE/img/d}; then
+		mount -o loop,ro -t vfat $FLASHDRIVE_FILE ${FLASHDRIVE_FILE/img/d}
+	fi
 	mkdir -p functions/mass_storage.$N
 	echo 1 > functions/mass_storage.$N/stall
 	echo 0 > functions/mass_storage.$N/lun.0/cdrom
@@ -131,12 +133,17 @@ then
 fi
 
 # this lists available UDC drivers
-ls /sys/class/udc > UDC
+ls /sys/class/udc > UDC 2>/dev/null
 
 if [ "$AM_ETHERNET" == "yes" ]
 then
-    ifconfig $N 172.16.64.1 netmask 255.255.255.0 up
-    systemctl restart isc-dhcp-server.service
+    if ip link show $N >/dev/null 2>&1; then
+        ip addr add 172.16.64.1/24 dev $N 2>/dev/null || true
+        ip link set $N up
+        systemctl restart isc-dhcp-server.service || true
+    else
+        echo "usb0 not present yet; skipping DHCP start."
+    fi
 fi
 
 
