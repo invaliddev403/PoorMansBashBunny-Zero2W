@@ -32,16 +32,19 @@ do
 			FLASHDRIVE_FILE=`echo $AM|sed -e "s/^FILE_IMAGE=//"`
 		;;
 		STOR_RNDIS*)
+			echo "Switching to Storage + RNDIS mode..."
 			/bunny/bin/storage_rndis
+			echo "STOR_RNDIS configuration applied."
 			exit 0
 		;;
 		STOP*)
+			echo "Stopping all USB Gadgets..."
 			for OLDDEV in `ls /sys/kernel/config/usb_gadget/`
 			do
 				echo "" > /sys/kernel/config/usb_gadget/$OLDDEV/UDC 2>/dev/null
 				rm -rf /sys/kernel/config/usb_gadget/$OLDDEV
 			done
-			echo "USB Gadget stopped."
+			echo "All USB Gadgets stopped and cleaned up."
 			exit 0
 		;;
 		*)
@@ -66,16 +69,24 @@ PRODUCT="Pi Zero Bunny"
 
 # Ensure required modules are loaded and legacy gadgets are out of the way
 echo "Preparing USB Gadget modules..."
-modprobe -r g_ether 2>/dev/null
-modprobe -r g_multi 2>/dev/null
-modprobe -r g_hid 2>/dev/null
+modprobe -r g_ether 2>/dev/null && echo "  - Unloaded legacy g_ether"
+modprobe -r g_multi 2>/dev/null && echo "  - Unloaded legacy g_multi"
+modprobe -r g_hid 2>/dev/null   && echo "  - Unloaded legacy g_hid"
 
-modprobe libcomposite 2>/dev/null || echo "Error: libcomposite failed."
+if modprobe libcomposite 2>/dev/null; then
+    echo "  - Module libcomposite loaded."
+else
+    echo "  ! Error: libcomposite failed to load."
+fi
 
 # Try common names for gadget functions
 for mod in usb_f_hid f_hid usb_f_mass_storage usb_f_msc usb_f_acm usb_f_ecm usb_f_rndis; do
-    modprobe $mod 2>/dev/null
+    if modprobe $mod 2>/dev/null; then
+        echo "  - Module $mod loaded."
+    fi
 done
+
+echo "Setting up gadget configuration in configfs..."
 
 DEV_DIR=g1
 DEV_INT=1
